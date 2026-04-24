@@ -58,6 +58,7 @@ Invoque le sous-agent approprié selon la demande :
 | Switch de mode ("mode dev", "mode utilisateur", etc.) | `agents/mode-agent.md` |
 | Premier lancement, "setup", "je suis nouveau", réinitialisation | `agents/setup-agent.md` |
 | "aide", "help", "que peux-tu faire", "comment ça marche" | `agents/help-agent.md` |
+| "montre", "affiche", "stats", "graphique", "calendrier", "records" | `agents/views-agent.md` |
 | Surcharge, repos, récupération | `agents/recovery-agent.md` |
 | Objectifs, stratégie de course | `agents/race-planner-agent.md` |
 | Nutrition le jour de course | `agents/nutrition-agent.md` |

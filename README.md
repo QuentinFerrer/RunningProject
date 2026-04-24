@@ -127,6 +127,7 @@ claude
 
 ### Structure du projet
 
+<!-- STRUCTURE_START -->
 ```
 RunningProject/
 ├── .env.example              # Template des credentials
@@ -138,6 +139,7 @@ RunningProject/
 │   ├── mode-agent.md         # Sélection mode utilisateur / développeur
 │   ├── setup-agent.md        # Onboarding et réinitialisation
 │   ├── help-agent.md         # Guide interactif des fonctionnalités
+│   ├── views-agent.md        # Affichage stats, courses, graphiques
 │   ├── profile-agent.md      # Sync Strava et profil
 │   ├── recovery-agent.md     # Charge d'entraînement et récupération
 │   ├── race-planner-agent.md # Objectifs et stratégie de course
@@ -153,6 +155,8 @@ RunningProject/
 │   ├── strava_auth.py        # OAuth Strava (usage unique)
 │   ├── strava_sync.py        # Sync Strava → SQLite + profil
 │   ├── add_feedback.py       # Enregistrement feedback post-course
+│   ├── views.py              # Affichage données (stats, graphiques, calendrier)
+│   ├── update_readme.py      # Mise à jour automatique du README
 │   └── reset.py              # Réinitialisation des données (avec confirmation)
 ├── hooks/
 │   ├── pre-push.py           # Bloque si données perso ou branche en retard
@@ -165,6 +169,7 @@ RunningProject/
     ├── calendar.example.md   # Exemple de format calendrier
     └── feedbacks.example.md  # Exemple de format feedback
 ```
+<!-- STRUCTURE_END -->
 
 **Fichiers locaux uniquement (hors GitHub) :**
 
@@ -201,6 +206,20 @@ Conventions de nommage :
 Les agents sont des fichiers `.md` lus par Claude Code. `CLAUDE.md` est l'orchestrateur : il lit le contexte au démarrage et route chaque demande vers l'agent spécialisé approprié.
 
 Les règles dans `rules/` encapsulent la logique métier (formules, protocoles) séparément des agents qui les appliquent. Les hooks dans `hooks/` s'exécutent automatiquement avant/après certaines opérations (écriture, push, fin de session).
+
+<!-- AGENTS_TABLE_START -->
+| Agent | Déclenché par |
+|---|---|
+| `agents/mode-agent.md` | Switch de mode ("mode dev", "mode utilisateur"...) |
+| `agents/setup-agent.md` | "setup", "je suis nouveau", réinitialisation |
+| `agents/help-agent.md` | "aide", "help", "que peux-tu faire" |
+| `agents/views-agent.md` | "montre", "affiche", "stats", "graphique", "calendrier" |
+| `agents/recovery-agent.md` | Surcharge, repos, récupération |
+| `agents/race-planner-agent.md` | Objectifs, stratégie de course |
+| `agents/nutrition-agent.md` | Nutrition le jour de course |
+| `agents/feedback-agent.md` | Analyse d'un feedback post-course |
+| `agents/profile-agent.md` | Mise à jour profil, sync Strava |
+<!-- AGENTS_TABLE_END -->
 
 ---
 
