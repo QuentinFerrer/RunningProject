@@ -3,60 +3,73 @@
 ## Protection de main
 
 La branche `main` est protégée par GitHub (branch ruleset).
-**Aucun push direct n'est possible** — tout passe par une Pull Request.
-Cette règle est appliquée au niveau réseau par GitHub, indépendamment des règles locales.
+Aucun push direct — tout passe par une Pull Request.
 
-## Convention de nommage des branches
+---
 
-| Type | Format | Exemple |
-|------|--------|---------|
-| Nouvelle fonctionnalité | `feature/YYYY-MM-DD-sujet` | `feature/2026-04-25-nutrition-agent` |
-| Correction de bug | `fix/YYYY-MM-DD-sujet` | `fix/2026-04-25-strava-token` |
-| Mise à jour de règles | `rules/YYYY-MM-DD-sujet` | `rules/2026-04-25-recovery-thresholds` |
-| Mise à jour d'agent | `agent/YYYY-MM-DD-sujet` | `agent/2026-04-25-setup-flow` |
+## Règle fondamentale — une branche à la fois sur les fichiers partagés
 
-## Protocole avant toute modification de code ou d'agent
+Ces fichiers génèrent des conflits si modifiés sur plusieurs branches en parallèle :
+`CLAUDE.md` · `agents/*.md` · `rules/*.md` · `dev/*.md`
 
-**Déclencheur** : toute demande de modification sur `.py`, `.md` (hors `data/`), `.json`.
+**Avant de créer une nouvelle branche** : vérifier qu'aucune PR ouverte ne touche aux mêmes fichiers. Si oui → merger d'abord.
 
-### 1. Afficher les branches existantes
+---
+
+## Convention de nommage
+
+| Type | Format |
+|------|--------|
+| Nouvelle fonctionnalité | `feature/YYYY-MM-DD-sujet` |
+| Correction de bug | `fix/YYYY-MM-DD-sujet` |
+| Mise à jour de règles | `rules/YYYY-MM-DD-sujet` |
+| Mise à jour d'agent | `agent/YYYY-MM-DD-sujet` |
+
+---
+
+## Cycle de travail complet
+
+### 1. Créer une branche depuis main à jour
 ```bash
-git branch -a
-git status
-```
-
-### 2. Demander à l'utilisateur
-> "Sur quelle branche veux-tu travailler ?
-> Branches existantes : [liste]
-> → Continuer sur une branche existante
-> → Créer une nouvelle branche"
-
-### 3a. Branche existante
-```bash
-git checkout nom-de-la-branche
-```
-
-### 3b. Nouvelle branche — toujours depuis main
-```bash
+git fetch origin
 git checkout main
 git pull origin main
 git checkout -b feature/YYYY-MM-DD-sujet
 ```
 
-### 4. Confirmer avant de modifier
+### 2. Commiter
 ```bash
-git branch --show-current
+git add <fichiers spécifiques>
+git commit -m "type: description"
 ```
 
-## Cycle de travail
+### 3. Rebase avant chaque push (obligatoire)
+```bash
+git fetch origin
+git rebase origin/main
+```
 
+En cas de conflits :
+```bash
+# Résoudre → puis :
+git add <fichier>
+git rebase --continue
 ```
-1. Modifications sur la branche feature
-2. git add <fichiers spécifiques>   ← jamais git add -A
-3. git commit -m "type: description"
-4. git push origin nom-de-la-branche
-5. gh pr create (sur demande)       ← GitHub bloque le merge sans PR
+
+### 4. Pousser
+```bash
+git push -u origin nom-de-la-branche          # premier push
+git push --force-with-lease origin nom         # après un rebase
 ```
+
+### 5. Après merge de la PR
+```bash
+git checkout main
+git pull origin main
+git branch -d nom-de-la-branche
+```
+
+---
 
 ## Fichiers autorisés dans un commit
 
@@ -65,9 +78,7 @@ git branch --show-current
 | `scripts/*.py` | `.env` |
 | `agents/*.md` | `data/running.db` |
 | `rules/*.md` | `data/profile.md` |
-| `hooks/*.py` | `data/calendar.md` |
-| `CLAUDE.md` | `data/feedbacks.md` |
-| `README.md` | `.venv/` |
-| `.env.example` | `personal/` |
-| `data/*.example.md` | |
-| `data/.gitkeep` | |
+| `dev/*.md` | `data/calendar.md` |
+| `hooks/*.py` | `data/feedbacks.md` |
+| `CLAUDE.md` | `.venv/` · `personal/` |
+| `README.md` · `.env.example` | |
