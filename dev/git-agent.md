@@ -8,28 +8,12 @@ Protection de `main` assurée par GitHub (branch ruleset).
 
 ## Avant toute modification de code ou d'agent
 
-Avant de toucher à un fichier `.py`, `.md` (hors `data/`), `.json` :
+Le choix de la branche est géré par `agents/mode-agent.md` (3 chemins : gros changement, branche en cours, fix rapide).
 
+Une fois la branche choisie et active, vérifier avant toute modification :
 ```bash
-git fetch origin
-git branch -a
+git branch --show-current
 git status
-```
-
-Demander à l'utilisateur :
-> "Sur quelle branche veux-tu travailler ?
-> Branches disponibles : [liste]
-> → Continuer sur une branche existante
-> → Créer une nouvelle branche"
-
-**Vérification anti-conflit avant de créer une nouvelle branche :**
-Si des PRs sont ouvertes qui touchent à `CLAUDE.md`, `agents/`, `rules/`, `dev/` → signaler et recommander de les merger d'abord.
-
-**Nouvelle branche — toujours depuis main à jour :**
-```bash
-git checkout main
-git pull origin main
-git checkout -b feature/YYYY-MM-DD-sujet
 ```
 
 ---
