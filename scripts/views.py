@@ -8,6 +8,19 @@ Usage:
     python scripts/views.py load [jours]          # graphique CTL/ATL/TSB (défaut 90)
     python scripts/views.py race "nom"            # chercher une course par nom
     python scripts/views.py prs                   # records personnels par distance
+    python scripts/views.py filter [options]      # filtrage multi-critères
+
+Options pour filter :
+    --from  YYYY-MM-DD    date de début
+    --to    YYYY-MM-DD    date de fin
+    --min-dist KM         distance minimale en km
+    --max-dist KM         distance maximale en km
+    --type  Run|TrailRun|All   type d'activité (défaut: toutes les courses)
+    --name  "texte"       filtre sur le nom (recherche partielle)
+    --races-only          seulement les courses ciblées
+    --has-feedback        seulement les activités avec un feedback
+    --order date|dist|time|tss  tri (défaut: date)
+    --limit N             nombre max de résultats (défaut: 50)
 """
 import sqlite3
 import sys
@@ -341,6 +354,114 @@ def view_prs():
 
 
 # ---------------------------------------------------------------------------
+# Vue : Filtre multi-critères
+# ---------------------------------------------------------------------------
+
+def view_filter(args_list):
+    import argparse
+    parser = argparse.ArgumentParser(prog="views.py filter", add_help=True)
+    parser.add_argument("--from",       dest="date_from",   metavar="YYYY-MM-DD")
+    parser.add_argument("--to",         dest="date_to",     metavar="YYYY-MM-DD")
+    parser.add_argument("--min-dist",   dest="min_dist",    type=float, metavar="KM")
+    parser.add_argument("--max-dist",   dest="max_dist",    type=float, metavar="KM")
+    parser.add_argument("--type",       dest="sport_type",  metavar="Run|TrailRun|All")
+    parser.add_argument("--name",       dest="name",        metavar="TEXTE")
+    parser.add_argument("--races-only", dest="races_only",  action="store_true")
+    parser.add_argument("--has-feedback",dest="has_feedback",action="store_true")
+    parser.add_argument("--order",      dest="order",       choices=["date","dist","time","tss"], default="date")
+    parser.add_argument("--limit",      dest="limit",       type=int, default=50)
+
+    try:
+        opts = parser.parse_args(args_list)
+    except SystemExit:
+        return
+
+    conditions = []
+    params     = []
+
+    if opts.date_from:
+        conditions.append("start_date >= ?")
+        params.append(opts.date_from)
+    if opts.date_to:
+        conditions.append("start_date <= ?")
+        params.append(opts.date_to + " 23:59:59")
+    if opts.min_dist is not None:
+        conditions.append("distance >= ?")
+        params.append(opts.min_dist * 1000)
+    if opts.max_dist is not None:
+        conditions.append("distance <= ?")
+        params.append(opts.max_dist * 1000)
+    if opts.sport_type and opts.sport_type.lower() != "all":
+        conditions.append("sport_type LIKE ?")
+        params.append(f"%{opts.sport_type}%")
+    else:
+        # Par défaut : seulement les activités de course
+        conditions.append("sport_type IN ('Run','TrailRun','VirtualRun')")
+    if opts.name:
+        conditions.append("LOWER(name) LIKE LOWER(?)")
+        params.append(f"%{opts.name}%")
+    if opts.races_only:
+        conditions.append("is_targeted_race = 1")
+    if opts.has_feedback:
+        conditions.append("has_feedback = 1")
+
+    where = " AND ".join(conditions) if conditions else "1=1"
+    order_map = {"date": "start_date DESC", "dist": "distance DESC",
+                 "time": "moving_time ASC",  "tss":  "tss DESC"}
+    order_sql = order_map[opts.order]
+
+    sql = f"""
+        SELECT name, sport_type, start_date, distance, moving_time,
+               elevation_gain, avg_speed, avg_heartrate, tss,
+               is_targeted_race, has_feedback
+        FROM activities
+        WHERE {where}
+        ORDER BY {order_sql}
+        LIMIT ?
+    """
+    params.append(opts.limit)
+
+    conn = get_conn()
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+
+    # Résumé des filtres appliqués
+    desc = []
+    if opts.date_from or opts.date_to:
+        desc.append(f"du {opts.date_from or '?'} au {opts.date_to or 'aujourd\\'hui'}")
+    if opts.min_dist is not None or opts.max_dist is not None:
+        desc.append(f"distance {opts.min_dist or 0}–{opts.max_dist or '+inf'} km")
+    if opts.sport_type and opts.sport_type.lower() != "all":
+        desc.append(f"type : {opts.sport_type}")
+    if opts.name:
+        desc.append(f"nom contient \"{opts.name}\"")
+    if opts.races_only:
+        desc.append("courses ciblées")
+    if opts.has_feedback:
+        desc.append("avec feedback")
+
+    title = " | ".join(desc) if desc else "Toutes les activités"
+    print(f"\n=== {title} — {len(rows)} résultat(s) ===\n")
+
+    if not rows:
+        print("Aucune activite trouvee pour ces criteres.")
+        return
+
+    print(f"{'#':<3} {'Nom':<30} {'Type':<12} {'Date':<12} {'Dist':>8} "
+          f"{'Temps':>9} {'Allure':>9} {'D+':>5} {'FC':>5} {'TSS':>5} {'':>2}")
+    print("-" * 115)
+    for i, r in enumerate(rows, 1):
+        name, stype, date, dist, mvtime, elev, speed, hr, tss, is_race, has_fb = r
+        flags = ("*" if is_race else "") + ("F" if has_fb else "")
+        print(
+            f"{i:<3} {(str(name)[:28] + flags):<30} {str(stype or '')[:12]:<12} "
+            f"{(date or '')[:10]:<12} {fmt_dist(dist):>8} {fmt_time(mvtime):>9} "
+            f"{fmt_pace(speed):>9} {int(elev or 0):>5} {int(hr or 0):>5} {int(tss or 0):>5}"
+        )
+    print("\n* = course ciblée   F = feedback disponible")
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
@@ -370,6 +491,8 @@ def main():
         view_race(" ".join(args[1:]))
     elif cmd == "prs":
         view_prs()
+    elif cmd == "filter":
+        view_filter(args[1:])
     else:
         print(f"Commande inconnue : {cmd}")
         print(__doc__)
