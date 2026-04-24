@@ -1,68 +1,101 @@
 # Running Coach AI
 
-A personal running coach powered by Claude AI and your Strava data.
+Un coach running personnel alimenté par Claude AI et tes données Strava.
 
-Ask it anything: race targets, training load analysis, recovery advice, race-day nutrition, or post-race feedback. All your data stays local.
-
----
-
-## Features
-
-- **Auto-sync with Strava** — imports your full activity history on every session
-- **Training load tracking** — CTL / ATL / TSB calculated from your activities
-- **Race calendar** — add upcoming races with target times; matched automatically once completed
-- **Post-race feedback** — linked to the actual Strava activity in the database
-- **Specialized AI agents** — recovery, race planning, nutrition, feedback analysis
+Pose-lui n'importe quelle question : objectifs de course, analyse de charge, récupération, nutrition le jour J, bilan post-course. Toutes tes données restent en local.
 
 ---
 
-## Prerequisites
+## Pour les coureurs — Utiliser le coach
 
-- [Claude Code](https://claude.ai/code) (CLI or VS Code extension)
+### Ce que le coach peut faire
+
+| Tu veux... | Dis... |
+|---|---|
+| Mettre à jour tes activités Strava | "sync" / "mets à jour" |
+| Ajouter une prochaine course | "ajoute une course" / "je veux m'inscrire à..." |
+| Faire un bilan après une course | "feedback" / "bilan de ma course de dimanche" |
+| Vérifier ta forme / fatigue | "suis-je en surcharge ?" / "ai-je besoin de repos ?" |
+| Connaître tes temps cibles | "que puis-je viser sur un semi ?" |
+| Préparer une course à venir | "prépare-moi pour mon marathon" / "plan nutrition" |
+| Voir le guide complet | "aide" / "help" |
+
+### Démarrage rapide
+
+1. Installe [Claude Code](https://claude.ai/code) (CLI ou extension VS Code)
+2. Clone ce dépôt et ouvre le dossier dans Claude Code
+3. Au premier lancement, dis "setup" — le coach te guide pas à pas
+4. Connecte ton compte Strava (une seule fois)
+5. C'est prêt. Dis bonjour !
+
+### Fonctionnalités principales
+
+**Sync Strava automatique** — au début de chaque session (après ton premier message), toutes tes dernières activités sont importées. Tu peux aussi dire "sync" à tout moment pour forcer une mise à jour.
+
+**Calendrier de courses** — inscris tes prochaines courses avec tes objectifs. Quand tu cours la course, elle est automatiquement reconnue et retirée du calendrier.
+
+**Feedback post-course** — raconte ta course au coach : ressenti, temps, fréquence cardiaque, nutrition. Il lie ton bilan à l'activité Strava correspondante et l'analyse.
+
+**Charge d'entraînement** — le coach calcule ton CTL (forme), ATL (fatigue) et TSB (fraîcheur) pour t'aider à doser l'effort et éviter le surentraînement.
+
+**Objectifs de performance** — à partir de tes activités récentes et de ta forme actuelle, le coach estime tes temps cibles réalistes sur toutes les distances.
+
+**Préparation course** — stratégie de départ, allures au km, plan de ravitaillement personnalisé selon la distance et le dénivelé.
+
+**Récupération** — après une course, le coach recommande un plan de récupération adapté à la distance et à ton état de forme.
+
+### Confidentialité
+
+Toutes tes données sont stockées **en local uniquement** — aucune base de données cloud, aucun service tiers en dehors de l'API Strava. Le seul appel externe est vers `api.strava.com` avec tes propres identifiants.
+
+---
+
+## Pour les développeurs — Contribuer au projet
+
+### Prérequis
+
+- [Claude Code](https://claude.ai/code)
 - Python 3.10+
-- A [Strava](https://www.strava.com) account with your runs synced
+- Un compte [Strava](https://www.strava.com) avec tes sorties synchronisées
+- Git + [GitHub CLI](https://cli.github.com) (optionnel, pour les PR)
 
----
+### Installation
 
-## Setup
-
-### 1. Clone the repository
+**1. Cloner le dépôt**
 
 ```bash
 git clone https://github.com/your-username/RunningProject.git
 cd RunningProject
 ```
 
-### 2. Create your environment file
+**2. Créer le fichier d'environnement**
 
 ```bash
 cp .env.example .env
 ```
 
-Open `.env` and fill in your Strava credentials (see step 3).
-
-### 3. Create a Strava API application
-
-1. Go to [strava.com/settings/api](https://www.strava.com/settings/api)
-2. Create an application with these settings:
-   - **Application Name**: RunningProject (or anything)
-   - **Website**: `http://localhost`
-   - **Authorization Callback Domain**: `localhost`
-3. Copy your **Client ID** and **Client Secret** into `.env`
-
-### 4. Create a Python virtual environment
+**3. Créer l'environnement virtuel Python**
 
 ```bash
-python -m venv .venv
-
 # Windows
+py -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 
 # macOS / Linux
+python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
-### 5. Authorize with Strava (one-time)
+**4. Créer une application Strava** (une seule fois)
+
+1. Va sur [strava.com/settings/api](https://www.strava.com/settings/api)
+2. Crée une application :
+   - **Application Name** : RunningProject (ou ce que tu veux)
+   - **Website** : `http://localhost`
+   - **Authorization Callback Domain** : `localhost`
+3. Copie le **Client ID** et le **Client Secret** dans `.env`
+
+**5. Autoriser l'accès Strava** (une seule fois)
 
 ```bash
 # Windows
@@ -72,9 +105,9 @@ python -m venv .venv
 .venv/bin/python scripts/strava_auth.py
 ```
 
-This opens Strava in your browser. Authorize the app, copy the `code` from the redirect URL, and paste it in the terminal. Your tokens are saved automatically to `.env`.
+Un navigateur s'ouvre sur Strava. Après autorisation, copie l'URL de redirection et colle-la dans le terminal. Les tokens sont sauvegardés automatiquement dans `.env`.
 
-### 6. Sync your Strava data
+**6. Première sync**
 
 ```bash
 # Windows
@@ -84,77 +117,93 @@ This opens Strava in your browser. Authorize the app, copy the `code` from the r
 .venv/bin/python scripts/strava_sync.py
 ```
 
-This imports all your activities into a local SQLite database and generates `data/profile.md`.
+Importe toutes tes activités dans la base SQLite locale et génère `data/profile.md`.
 
-### 7. Open Claude Code in this folder
+**7. Lancer Claude Code**
 
 ```bash
 claude
 ```
 
-The AI coach will greet you, sync your latest activities, and offer a menu of options.
-
----
-
-## Usage
-
-Once set up, just open Claude Code in the project folder. On every session it automatically syncs Strava and loads your profile.
-
-**Available actions:**
-
-| What you say | What happens |
-|---|---|
-| "sync" | Force a Strava sync |
-| "ajoute une course" | Add an upcoming race to the calendar |
-| "feedback sur ma dernière course" | Log a post-race debrief linked to the Strava activity |
-| "suis-je en surcharge ?" | Recovery & rest analysis based on CTL/ATL/TSB |
-| "que puis-je viser sur un semi ?" | Race target estimation |
-| "prépare-moi pour dimanche" | Race-day nutrition and strategy plan |
-
----
-
-## Project structure
+### Structure du projet
 
 ```
 RunningProject/
-├── .env.example              # Credentials template
+├── .env.example              # Template des credentials
 ├── .gitignore
+├── .gitattributes
 ├── requirements.txt
-├── CLAUDE.md                 # Main AI agent instructions
+├── CLAUDE.md                 # Orchestrateur principal des agents
 ├── agents/
-│   ├── profile-agent.md      # Strava sync & profile management
-│   ├── recovery-agent.md     # Training load & rest analysis
-│   ├── race-planner-agent.md # Race targets & strategy
-│   ├── nutrition-agent.md    # Race-day nutrition protocol
-│   └── feedback-agent.md     # Post-race feedback analysis
+│   ├── mode-agent.md         # Sélection mode utilisateur / développeur
+│   ├── setup-agent.md        # Onboarding et réinitialisation
+│   ├── help-agent.md         # Guide interactif des fonctionnalités
+│   ├── profile-agent.md      # Sync Strava et profil
+│   ├── recovery-agent.md     # Charge d'entraînement et récupération
+│   ├── race-planner-agent.md # Objectifs et stratégie de course
+│   ├── nutrition-agent.md    # Nutrition le jour de course
+│   └── feedback-agent.md     # Analyse des feedbacks post-course
+├── rules/
+│   ├── safety.md             # Protocole avant opérations destructives
+│   ├── training-load.md      # Formules CTL/ATL/TSB et TSS
+│   ├── recovery.md           # Tables de récupération par distance
+│   ├── race-targets.md       # Formule de Riegel, estimations de temps
+│   └── nutrition.md          # Protocoles nutrition par distance
 ├── scripts/
-│   ├── strava_auth.py        # One-time OAuth setup
-│   ├── strava_sync.py        # Sync Strava → SQLite + generate profile.md
-│   └── add_feedback.py       # Log race feedback linked to Strava activity
+│   ├── strava_auth.py        # OAuth Strava (usage unique)
+│   ├── strava_sync.py        # Sync Strava → SQLite + profil
+│   ├── add_feedback.py       # Enregistrement feedback post-course
+│   └── reset.py              # Réinitialisation des données (avec confirmation)
+├── hooks/
+│   ├── pre-push.py           # Bloque si données perso ou branche en retard
+│   ├── post-write.py         # Hook post-écriture
+│   └── on-stop.py            # Hook fin de session
+├── dev/
+│   └── git-agent.md          # Workflow git en mode développeur
 └── data/
     ├── .gitkeep
-    ├── calendar.example.md   # Race calendar format example
-    └── feedbacks.example.md  # Feedback format example
+    ├── calendar.example.md   # Exemple de format calendrier
+    └── feedbacks.example.md  # Exemple de format feedback
 ```
 
-**Files kept local (not on GitHub):**
+**Fichiers locaux uniquement (hors GitHub) :**
 
-| File | Why |
+| Fichier | Pourquoi |
 |---|---|
-| `.env` | Strava credentials |
-| `data/running.db` | All your Strava activities (personal health data) |
-| `data/profile.md` | Generated athlete profile |
-| `data/calendar.md` | Your upcoming races |
-| `data/feedbacks.md` | Your post-race notes |
+| `.env` | Credentials Strava |
+| `data/running.db` | Toutes tes activités (données de santé personnelles) |
+| `data/profile.md` | Profil athlète généré |
+| `data/calendar.md` | Tes prochaines courses |
+| `data/feedbacks.md` | Tes bilans post-course |
+
+### Workflow git
+
+La branche `main` est protégée sur GitHub (ruleset, aucun bypass). Tout passe par une Pull Request.
+
+En mode développeur dans Claude Code, un protocole de branches est géré automatiquement :
+- **Gros changement** → branche `feature/YYYY-MM-DD-sujet`, multi-sessions
+- **Reprendre un travail** → checkout d'une branche existante + rebase
+- **Fix rapide** → branche `fix/YYYY-MM-DD-sujet`, merge dans la session
+
+Le hook `hooks/pre-push.py` bloque automatiquement si des données personnelles sont détectées ou si la branche est en retard sur `origin/main`.
+
+Conventions de nommage :
+
+| Type | Format |
+|---|---|
+| Nouvelle fonctionnalité | `feature/YYYY-MM-DD-sujet` |
+| Correction de bug | `fix/YYYY-MM-DD-sujet` |
+| Mise à jour de règles | `rules/YYYY-MM-DD-sujet` |
+| Mise à jour d'agent | `agent/YYYY-MM-DD-sujet` |
+
+### Architecture des agents
+
+Les agents sont des fichiers `.md` lus par Claude Code. `CLAUDE.md` est l'orchestrateur : il lit le contexte au démarrage et route chaque demande vers l'agent spécialisé approprié.
+
+Les règles dans `rules/` encapsulent la logique métier (formules, protocoles) séparément des agents qui les appliquent. Les hooks dans `hooks/` s'exécutent automatiquement avant/après certaines opérations (écriture, push, fin de session).
 
 ---
 
-## Privacy
-
-All your data is stored **locally only** — no cloud database, no third-party service beyond the Strava API. The only external call is to `api.strava.com` using your own credentials.
-
----
-
-## License
+## Licence
 
 MIT

@@ -23,7 +23,7 @@ Poser la question avant toute action :
 - **Utilisateur** → passer à l'étape 3, ignorer tout ce qui concerne git.
 - **Développeur** → passer à l'étape 3, puis afficher la branche git courante.
 
-**Étape 3 — Session running**
+**Étape 3 — Session running** (déclenché dès que l'utilisateur a répondu au choix de mode)
   1. Lance la sync Strava :
      ```bash
      .venv/Scripts/python scripts/strava_sync.py
@@ -31,6 +31,8 @@ Poser la question avant toute action :
   2. Lis `data/profile.md` (CTL/ATL/TSB, volume récent)
   3. Lis `data/calendar.md` (prochaines échéances)
   4. Accueille l'athlète par son prénom, confirme les nouvelles activités, propose le menu
+
+> La sync se déclenche **après le premier message de l'utilisateur** (réponse au choix de mode), pas avant. Si l'utilisateur dit "sync", "mets à jour", "actualise" ou "recharge les données" en cours de conversation → relancer immédiatement le script de sync.
 
 **Switch de mode en cours de conversation** → `agents/mode-agent.md`
 
@@ -55,6 +57,7 @@ Invoque le sous-agent approprié selon la demande :
 |---------|-------|
 | Switch de mode ("mode dev", "mode utilisateur", etc.) | `agents/mode-agent.md` |
 | Premier lancement, "setup", "je suis nouveau", réinitialisation | `agents/setup-agent.md` |
+| "aide", "help", "que peux-tu faire", "comment ça marche" | `agents/help-agent.md` |
 | Surcharge, repos, récupération | `agents/recovery-agent.md` |
 | Objectifs, stratégie de course | `agents/race-planner-agent.md` |
 | Nutrition le jour de course | `agents/nutrition-agent.md` |
