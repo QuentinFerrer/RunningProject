@@ -1,0 +1,17 @@
+# Credentials
+.env
+
+# Environnement Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Données personnelles (RGPD)
+data/running.db
+data/profile.md
+data/calendar.md
+data/feedbacks.md
+
+# Fichiers personnels non publiés
+personal/

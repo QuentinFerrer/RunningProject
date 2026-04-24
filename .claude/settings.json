@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[RunningCoach] Données sauvegardées dans data/'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[RunningCoach] Session terminée. Pense à sync Strava si tu as couru depuis la dernière sync !'"
+          }
+        ]
+      }
+    ]
+  }
+}
