@@ -28,25 +28,34 @@ print('existing:' + ','.join(existing) if existing else 'clean')
 "
 ```
 
-**Si des données existent** → Demande à l'utilisateur :
-> "Il y a déjà des données dans le projet (base de données, profil...). Tu veux repartir de zéro ou garder ces données ?"
-- Si oui → passe à l'Étape 1 (Reset)
-- Si non → saute à l'Étape 2 (Vérification environnement)
+**Si des données existent** → Applique le protocole de `rules/safety.md` :
+
+1. Liste précisément ce qui sera supprimé :
+   > "Il y a déjà des données dans le projet. Les éléments suivants seraient **définitivement supprimés** :
+   > - `data/running.db` — toutes tes activités Strava
+   > - `data/profile.md` — ton profil généré
+   > - `data/calendar.md` — ton calendrier de courses
+   > - `data/feedbacks.md` — tous tes feedbacks
+   >
+   > Cette action est **irréversible**. Tu veux repartir de zéro ?"
+
+2. **Attends une réponse explicite** — ne pas continuer tant que l'utilisateur n'a pas répondu dans la conversation.
+   - Réponse **"oui" / "yes" / "ok"** → passe à l'Étape 1
+   - Toute autre réponse → saute à l'Étape 2, confirmer que les données sont conservées
 
 **Si pas de données** → saute directement à l'Étape 2.
 
 ---
 
-## Étape 1 — Reset des données (si demandé)
+## Étape 1 — Reset des données (confirmation obtenue)
 
-Lance le script de réinitialisation :
+La confirmation ayant été donnée dans la conversation, lance le script :
 
 ```bash
 .venv/Scripts/python scripts/reset.py
 ```
 
-Explique à l'utilisateur ce qui va être supprimé avant de confirmer.
-Attends sa confirmation dans le terminal.
+Confirme ensuite ce qui a été supprimé et ce qui a été conservé (credentials `.env`).
 
 ---
 
