@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[RunningCoach] Données sauvegardées dans data/'"
+            "command": ".venv/Scripts/python hooks/post-write.py"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[RunningCoach] Session terminée. Pense à sync Strava si tu as couru depuis la dernière sync !'"
+            "command": ".venv/Scripts/python hooks/on-stop.py"
           }
         ]
       }
