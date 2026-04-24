@@ -28,6 +28,22 @@ if "git push" not in tool_input:
 
 errors = []
 
+# --- Vérification 0 : README à jour ---
+try:
+    result = subprocess.run(
+        [sys.executable, "scripts/update_readme.py"],
+        capture_output=True, text=True
+    )
+    if result.returncode == 1:
+        errors.append(
+            "  README.md a ete mis a jour automatiquement.\n"
+            "  Commitez-le avant de pusher :\n"
+            "    git add README.md && git commit -m \"docs: mise a jour README\"\n"
+            "  Puis relancez le push."
+        )
+except Exception:
+    pass
+
 # --- Vérification 1 : données personnelles ---
 try:
     committed = subprocess.run(
