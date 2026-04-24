@@ -428,13 +428,16 @@ def view_filter(args_list):
     # Résumé des filtres appliqués
     desc = []
     if opts.date_from or opts.date_to:
-        desc.append(f"du {opts.date_from or '?'} au {opts.date_to or 'aujourd\\'hui'}")
+        date_to_label = opts.date_to or "aujourd'hui"
+        desc.append(f"du {opts.date_from or '?'} au {date_to_label}")
     if opts.min_dist is not None or opts.max_dist is not None:
-        desc.append(f"distance {opts.min_dist or 0}–{opts.max_dist or '+inf'} km")
+        dmax = f"{opts.max_dist} km" if opts.max_dist else "+"
+        desc.append(f"distance {opts.min_dist or 0}–{dmax}")
     if opts.sport_type and opts.sport_type.lower() != "all":
         desc.append(f"type : {opts.sport_type}")
     if opts.name:
-        desc.append(f"nom contient \"{opts.name}\"")
+        name_label = opts.name
+        desc.append(f'nom contient "{name_label}"')
     if opts.races_only:
         desc.append("courses ciblées")
     if opts.has_feedback:

@@ -130,44 +130,45 @@ claude
 <!-- STRUCTURE_START -->
 ```
 RunningProject/
-├── .env.example              # Template des credentials
-├── .gitignore
-├── .gitattributes
+├── .env.example
+├── .gitignore / .gitattributes
 ├── requirements.txt
-├── CLAUDE.md                 # Orchestrateur principal des agents
+├── CLAUDE.md
 ├── agents/
-│   ├── mode-agent.md         # Sélection mode utilisateur / développeur
-│   ├── setup-agent.md        # Onboarding et réinitialisation
-│   ├── help-agent.md         # Guide interactif des fonctionnalités
-│   ├── views-agent.md        # Affichage stats, courses, graphiques
-│   ├── profile-agent.md      # Sync Strava et profil
-│   ├── recovery-agent.md     # Charge d'entraînement et récupération
-│   ├── race-planner-agent.md # Objectifs et stratégie de course
-│   ├── nutrition-agent.md    # Nutrition le jour de course
-│   └── feedback-agent.md     # Analyse des feedbacks post-course
+│   ├── feedback-agent.md
+│   ├── help-agent.md
+│   ├── mode-agent.md
+│   ├── nutrition-agent.md
+│   ├── profile-agent.md
+│   ├── race-planner-agent.md
+│   ├── recovery-agent.md
+│   ├── setup-agent.md
+│   └── views-agent.md
 ├── rules/
-│   ├── safety.md             # Protocole avant opérations destructives
-│   ├── training-load.md      # Formules CTL/ATL/TSB et TSS
-│   ├── recovery.md           # Tables de récupération par distance
-│   ├── race-targets.md       # Formule de Riegel, estimations de temps
-│   └── nutrition.md          # Protocoles nutrition par distance
+│   ├── git-workflow.md
+│   ├── nutrition.md
+│   ├── race-targets.md
+│   ├── recovery.md
+│   ├── safety.md
+│   └── training-load.md
 ├── scripts/
-│   ├── strava_auth.py        # OAuth Strava (usage unique)
-│   ├── strava_sync.py        # Sync Strava → SQLite + profil
-│   ├── add_feedback.py       # Enregistrement feedback post-course
-│   ├── views.py              # Affichage données (stats, graphiques, calendrier)
-│   ├── update_readme.py      # Mise à jour automatique du README
-│   └── reset.py              # Réinitialisation des données (avec confirmation)
+│   ├── add_feedback.py
+│   ├── reset.py
+│   ├── strava_auth.py
+│   ├── strava_sync.py
+│   ├── test_app.py
+│   ├── update_readme.py
+│   └── views.py
 ├── hooks/
-│   ├── pre-push.py           # Bloque si données perso ou branche en retard
-│   ├── post-write.py         # Hook post-écriture
-│   └── on-stop.py            # Hook fin de session
+│   ├── on-stop.py
+│   ├── post-write.py
+│   └── pre-push.py
 ├── dev/
-│   └── git-agent.md          # Workflow git en mode développeur
+│   └── git-agent.md
 └── data/
     ├── .gitkeep
-    ├── calendar.example.md   # Exemple de format calendrier
-    └── feedbacks.example.md  # Exemple de format feedback
+    ├── calendar.example.md
+    └── feedbacks.example.md
 ```
 <!-- STRUCTURE_END -->
 
